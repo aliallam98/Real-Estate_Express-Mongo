@@ -18,10 +18,14 @@
   },
   "homepage": "https://github.com/aliallam98/Real-Estate-Express-Mongo#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "joi": "^17.11.0",
-    "mongoose": "^8.0.3"
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.4",
+    "mongoose": "^8.0.3",
+    "otp-generator": "^4.0.1"
   }
 }
