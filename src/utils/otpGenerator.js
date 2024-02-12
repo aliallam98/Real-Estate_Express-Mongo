@@ -3,7 +3,7 @@ import moment from 'moment';
 
 
 //nu : Numbers of OTP That We Want , Mins : Set Expire Date Date now + mins
-export const OTPGenerator = (nu,mins)=>{
+ const OTPGeneratorFn = (nu,mins)=>{
     return {
         OTP :  otpGenerator.generate(nu,{
             lowerCaseAlphabets:false,
@@ -13,3 +13,5 @@ export const OTPGenerator = (nu,mins)=>{
         expireDate : moment().add(mins,"minute").format('YYYY-MM-DD HH:mm:ss')
     }
 }
+
+export default OTPGeneratorFn

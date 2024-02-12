@@ -1,4 +1,4 @@
-import  {Schema , model,models} from 'mongoose'
+import  mongoose, {Schema , model} from 'mongoose'
 
 
 const categorySchema = new Schema({
@@ -9,7 +9,7 @@ const categorySchema = new Schema({
     timestamps:true
 })
 
-const categoryModel = models.Category || model("Category", categorySchema)
+const categoryModel = mongoose.models.Category || model("Category", categorySchema)
 
 
 export default categoryModel

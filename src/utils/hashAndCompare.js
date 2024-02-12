@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
 
 
-export const hash = ({ plaintext, salt = process.env.SALT_ROUND } = {}) => {
-    const hashResult = bcrypt.hashSync(plaintext, parseInt(salt))
+export const hash = ({ plainText, salt = process.env.SALT_ROUND } = {}) => {
+    const hashResult = bcrypt.hashSync(plainText, parseInt(salt))
     return hashResult
 }
 
 
-export const compare = ({ plaintext, hashValue } = {}) => {
-    const matchResult = bcrypt.compareSync(plaintext, hashValue)
+export const compare = ({ plainText, hashValue } = {}) => {
+    const matchResult = bcrypt.compareSync(plainText, hashValue)
     return matchResult
 }

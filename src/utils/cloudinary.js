@@ -1,4 +1,6 @@
-import cloudinary from {cloudinary}
+import cloudinary from "cloudinary"
+import {config} from 'dotenv'
+config()
 
 
 cloudinary.v2.config({

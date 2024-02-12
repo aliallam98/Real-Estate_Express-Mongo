@@ -1,7 +1,6 @@
 import express from 'express'
 import { config } from 'dotenv';
 import bootstrap from './src/index.router.js';
-import { OTPGenerator } from './src/utils/otpGenerator.js';
 const app = express()
 config()
 
