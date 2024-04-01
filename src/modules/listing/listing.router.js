@@ -10,6 +10,7 @@ router.get("/", listingController.getAllListings);
 router.get("/:id", listingController.getListingById);
 router.post(
   "/",
+  auth(),
   fileUpload(fileValidation.image).array("images", 6),
   validation(listingValidators.createListing),
   listingController.createNewListing
@@ -21,5 +22,8 @@ router.put(
   listingController.updateListing
 );
 router.delete("/:id", listingController.deleteListingById);
+
+router.patch("/favorites/clear", listingController.clearFavorites);
+router.patch("/favorites/:id", listingController.addAndRemoveFromFavorites);
 
 export default router;

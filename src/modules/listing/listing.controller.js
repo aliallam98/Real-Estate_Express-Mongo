@@ -4,11 +4,14 @@ import slugify from "slugify";
 import { v4 as uuidv4 } from "uuid";
 import cloudinary from "../../utils/cloudinary.js";
 import ApiFeatures from "../../utils/apiFeatures.js";
+import { asyncHandler } from "../../utils/errorHandling.js";
+import userModel from "../../../DB/models/User.model.js";
 
-export const getAllListings = async (req, res, next) => {
+export const getAllListings = asyncHandler(async (req, res, next) => {
   const { query, page, skip, limit, sort, fields, order } = ApiFeatures(
     req.query
-  ); // query(searchTerm,filtering), page, skip, limit,fields
+  );
+  // query(searchTerm,filtering), page, skip, limit,fields
   // console.log("query", query);
   // console.log("page", page);
   // console.log("limit", limit);
@@ -26,8 +29,8 @@ export const getAllListings = async (req, res, next) => {
   return res
     .status(200)
     .json({ success: true, results: { totalDocuments, listings, totalPages } });
-};
-export const getListingById = async (req, res, next) => {
+});
+export const getListingById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   const isListingExist = await listingModel.findById(id);
@@ -35,16 +38,20 @@ export const getListingById = async (req, res, next) => {
     return next(new ErrorClass("Cannot Find This Document", 404));
 
   return res.status(200).json({ success: true, isListingExist });
-};
+});
 
-export const createNewListing = async (req, res, next) => {
+export const createNewListing = asyncHandler(async (req, res, next) => {
   try {
     if (req.files) {
       const images = [];
       for (const file of req.files) {
         const { secure_url, public_id } = await cloudinary.uploader.upload(
           file.path,
-          { folder: `Real-Estate/${req.body.title.split(" ").slice(1,2)}-${uuidv4()}` }
+          {
+            folder: `Real-Estate/${req.body.title
+              .split(" ")
+              .slice(1, 2)}-${uuidv4()}`,
+          }
         );
         images.push({ secure_url, public_id });
       }
@@ -59,15 +66,17 @@ export const createNewListing = async (req, res, next) => {
       ? (req.body.furnished = true)
       : (req.body.furnished = false);
 
-    // req.body.createdBy = req.user._id
+    req.body.createdBy = req.user._id;
+    req.body.title = req.body.title.toLowerCase();
+    req.body.description = req.body.description.toLowerCase();
     const listing = await listingModel.create(req.body);
-    return res.status(201).json({ success: true, results:listing });
+    return res.status(201).json({ success: true, results: listing });
   } catch (error) {
     console.log("error", error);
   }
-};
+});
 
-export const updateListing = async (req, res, next) => {
+export const updateListing = asyncHandler(async (req, res, next) => {
   try {
     const { id } = req.params;
     console.log(req.body);
@@ -114,9 +123,9 @@ export const updateListing = async (req, res, next) => {
   } catch (error) {
     console.log(error.message);
   }
-};
+});
 
-export const deleteListingById = async (req, res, next) => {
+export const deleteListingById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
   const isExist = await listingModel.findById(id);
@@ -131,4 +140,53 @@ export const deleteListingById = async (req, res, next) => {
   if (!listing) return next(new ErrorClass("Cannot Find This Document", 404));
 
   return res.status(204).json();
-};
+});
+
+export const addAndRemoveFromFavorites = asyncHandler(
+  async (req, res, next) => {
+    if (!req.user) {
+      return next(new ErrorClass("Should Be Login First"));
+    }
+
+    const listingId = req.params.id;
+
+    const isListingExist = await listingModel.findById(listingId);
+    if (!isListingExist) {
+      return next(new ErrorClass("No Listing Found", 404));
+    }
+
+    const isExistInFavorites = req.user.favorites.includes(listingId);
+
+    if (isExistInFavorites) {
+      await userModel.findByIdAndUpdate(req.user.id, {
+        $pull: {
+          favorites: listingId,
+        },
+      });
+    }
+
+    await userModel.findByIdAndUpdate(req.user.id, {
+      $addToSet: {
+        favorites: listingId,
+      },
+    });
+
+    const message = isExistInFavorites
+      ? `Listing ${isListingExist.name} Remove From Favorites`
+      : `Listing ${isListingExist.name} Added To Favorites`;
+    return res.status(200).json({ success: "Done", message });
+  }
+);
+export const clearFavorites = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    return next(new ErrorClass("Should Be Login First"));
+  }
+
+  await userModel.findByIdAndUpdate(req.user.id, {
+    favorites: [],
+  });
+
+  return res
+    .status(200)
+    .json({ success: "Done", message: "Favorites Is Empty Now" });
+});

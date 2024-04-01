@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, Types, model } from "mongoose";
 
 const userSchema = new Schema(
   {
@@ -15,6 +15,7 @@ const userSchema = new Schema(
     role: { type: String, default: "User", enum: ["User", "Admin"] },
     OTP: { otp: String, expireDate: Date },
     OTPNumber: { type: Number, default: 0 },
+    favorites: [{ type: Types.ObjectId , ref:"Listing"}],
   },
   {
     timestamps: true,

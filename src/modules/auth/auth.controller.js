@@ -1,10 +1,11 @@
 import userModel from "../../../DB/models/User.model.js";
 import { ErrorClass } from "../../utils/ErrorClass.js";
+import { asyncHandler } from "../../utils/errorHandling.js";
 import { generateToken } from "../../utils/generateAndVerfiyToken.js";
 import { compare, hash } from "../../utils/hashAndCompare.js";
 import OTPGeneratorFn from "../../utils/otpGenerator.js";
 
-export const signUp = async (req, res, next) => {
+export const signUp = asyncHandler(async (req, res, next) => {
   let { email, password } = req.body;
 
   //Check Email > Must Be Unique
@@ -36,10 +37,10 @@ export const signUp = async (req, res, next) => {
 
   return res
     .status(201)
-    .json({sucess:true, message: "You Account Has Been Created" });
-};
+    .json({ success: true, message: "You Account Has Been Created" });
+});
 
-export const logIn = async (req, res, next) => {
+export const logIn = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   //check Is Email Exist
   const isEmailExist = await userModel.findOne({ email });
@@ -75,9 +76,9 @@ export const logIn = async (req, res, next) => {
   // response
 
   return res.status(200).json({ message: "Logged In", payload });
-};
+});
 
-export const logOut = async (req, res, next) => {
+export const logOut = asyncHandler(async (req, res, next) => {
   res.clearCookie("token");
   return res.status(200).json({ message: "Logged Out" });
-};
+});

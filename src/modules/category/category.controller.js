@@ -1,4 +1,5 @@
 import categoryModel from '../../../DB/models/Category.model.js'
+import { asyncHandler } from '../../utils/errorHandling.js';
 
 
 
@@ -6,7 +7,7 @@ import categoryModel from '../../../DB/models/Category.model.js'
 
 
 
-export const getAllCategories = async (req,res,next)=>{
+export const getAllCategories =asyncHandler( async (req,res,next)=>{
 
     let page = parseInt(req.query.page)
     if (page <= 0 || !page) page = 1;   
@@ -17,19 +18,19 @@ export const getAllCategories = async (req,res,next)=>{
     const category = await categoryModel.find({}).skip((page - 1) * limit).limit(page * limit)
 
 return res.status(200).json({success:true, category})
-}
+})
 
 
-export const getCategoryById = async (req,res,next)=>{
+export const getCategoryById = asyncHandler(async (req,res,next)=>{
     const {id} = req.params
 
     const isCategoryExist = await categoryModel.findById(id)
     if(!isCategoryExist) return next(new ErrorClass('Cannot Find This Document' , 404))
 
     return res.status(200).json({success:true, isCategoryExist})
-}
+})
 
-export const createNewCategory = async(req,res,next)=>{
+export const createNewCategory = asyncHandler(async(req,res,next)=>{
 
     try {
         const {name} = req.body.name
@@ -48,9 +49,9 @@ export const createNewCategory = async(req,res,next)=>{
     } catch (error) {
         console.log("error",error);
     }
-}
+})
 
-export const updateCategory = async(req,res,next)=>{ 
+export const updateCategory = asyncHandler(async(req,res,next)=>{ 
     const {id} = req.params
 
     const isCategoryExist = await categoryModel.findById(id)
@@ -75,9 +76,9 @@ export const updateCategory = async(req,res,next)=>{
     // req.body.createdBy = req.user._id
     const category = await categoryModel.findByIdAndUpdate(id,req.body,{new:true})
     return res.status(200).json({success:true,category})
-}
+})
 
-export const deleteCategoryById = async (req,res,next)=>{
+export const deleteCategoryById = asyncHandler(async (req,res,next)=>{
     const {id} = req.params
 
     const isExist = await categoryModel.findById(id)
@@ -91,4 +92,4 @@ export const deleteCategoryById = async (req,res,next)=>{
     if(!category) return next(new ErrorClass('Cannot Find This Document' , 404))
 
     return res.status(204).json()
-}
+})

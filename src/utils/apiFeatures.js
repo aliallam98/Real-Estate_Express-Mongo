@@ -4,12 +4,16 @@ const ApiFeatures = (reqQuery) => {
   // Search
   if (searchTerm && searchTerm !== "") {
     query.$or = [
-      { title: { $regex: searchTerm, $options: "i" } },
-      { description: { $regex: searchTerm, $options: "i" } },
+      { title: { $regex: `${searchTerm}`, $options: "i" } },
+      { address: { $regex: `${searchTerm}`, $options: "i" } },
+      { description: { $regex: `${searchTerm}`, $options: "i" } },
     ];
   }
   // Filter
   if (filters) {
+    if (filters.purpose === "all") {
+      delete filters.purpose;
+    }
     let queryFiltersCopy = { ...filters };
     queryFiltersCopy = JSON.parse(
       JSON.stringify(queryFiltersCopy).replace(
@@ -21,16 +25,18 @@ const ApiFeatures = (reqQuery) => {
   }
 
   sort = reqQuery.sort || "createdAt";
+
+  if (reqQuery.order !== "desc" || reqQuery.order !== "asc") {
+    reqQuery.order = "desc";
+  }
   order = reqQuery.order || "desc";
 
   // Pagination
   // page = parseInt(page)
   if (page <= 0 || !page) page = 1;
 
-
-
   // limit = parseInt(limit)
-  if (limit <= 0 || !limit) limit = 5;
+  if (limit <= 0 || !limit) limit = 8;
   const skip = (page - 1) * limit;
 
   return {
