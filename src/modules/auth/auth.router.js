@@ -7,6 +7,7 @@ import * as authValidators from './auth.validation.js'
 router.post('/signup',authController.signUp)
 router.post('/login',authController.logIn)
 router.post('/logout',authController.logOut)
+router.get('/refresh',authController.refreshToken)
 
 
 export default router

@@ -63,10 +63,11 @@ export const logIn = asyncHandler(async (req, res, next) => {
     id: isEmailExist._id,
     profileImage: isEmailExist.profileImage,
   };
-  const token = generateToken({ payload });
+  const token = generateToken({ payload, expiresIn: 60 * 5 });
+  const refreshToken = generateToken({ payload, expiresIn: 60 * 60 * 27 * 7 });
 
   // Save Re-Fresh Token In Cookies
-  res.cookie("realEstateJwt", token, {
+  res.cookie("realEstateJwt", refreshToken, {
     maxAge: 1000 * 60 * 60 * 24 * 7, // MM
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",
@@ -75,10 +76,24 @@ export const logIn = asyncHandler(async (req, res, next) => {
 
   // response
 
-  return res.status(200).json({ message: "Logged In", payload });
+  return res.status(200).json({ message: "Logged In", token });
 });
 
 export const logOut = asyncHandler(async (req, res, next) => {
   res.clearCookie("token");
   return res.status(200).json({ message: "Logged Out" });
+});
+
+export const refreshToken = asyncHandler(async (req, res, next) => {
+  const payload = {
+    userName: isEmailExist.userName,
+    email: isEmailExist.email,
+    id: isEmailExist._id,
+    profileImage: isEmailExist.profileImage,
+  };
+  const refreshToken = generateToken({ payload, expiresIn: 60 * 5 });
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Done", results: refreshToken });
 });

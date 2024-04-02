@@ -60,3 +60,18 @@ export const getUser = asyncHandler(async (req, res, next) => {
   }
 });
 
+
+export const getUserFavorites = asyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    return next(new ErrorClass("Should Be Login First"));
+  }
+
+  const user = await userModel.findById(req.user._id).populate({
+    path: "favorites",
+  });
+  const favorites = user.favorites;
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Done", results: favorites });
+});

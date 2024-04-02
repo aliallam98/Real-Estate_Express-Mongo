@@ -5,27 +5,36 @@ import { verifyToken } from "../utils/generateAndVerfiyToken.js";
 export const auth = (roles = []) => {
   return async (req, res, next) => {
     try {
+      const { realEstateJwt: token } = req.cookies;
 
-      const { realEstateJwt:token } = req.cookies
-      
       if (!token) {
         return next(new ErrorClass("Jwt Is Required", 401));
       }
-      
+
       const decoded = verifyToken({ token });
       if (!decoded?.id) {
         return next(new ErrorClass("Invalid Payload Data", 401));
       }
 
-      const user= await userModel.findById(decoded.id);
+      let expirationTime = 0;
+      const currentTime = Date.now();
+      if (decoded) {
+        expirationTime = decoded.exp * 1000;
+        console.log(currentTime > expirationTime);
+        if (currentTime > expirationTime) {
+          return next(new ErrorClass("Token Is Expired", 403));
+        }
+      }
+
+      console.log(decoded);
+
+      const user = await userModel.findById(decoded.id);
       if (!user) {
         return next(new ErrorClass("Not Registered Account", 404));
       }
 
       req.user = user;
       next();
-
-
 
       // const { authorization } = req.headers;
       // if (!authorization?.startsWith(process.env.BEARER_KEY)) {

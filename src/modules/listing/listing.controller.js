@@ -157,12 +157,17 @@ export const addAndRemoveFromFavorites = asyncHandler(
 
     const isExistInFavorites = req.user.favorites.includes(listingId);
 
+    const message = isExistInFavorites
+      ? `Listing ${isListingExist.title} Remove From Favorites`
+      : `Listing ${isListingExist.title} Added To Favorites`;
+
     if (isExistInFavorites) {
       await userModel.findByIdAndUpdate(req.user.id, {
         $pull: {
           favorites: listingId,
         },
       });
+      return res.status(200).json({ success: true, message });
     }
 
     await userModel.findByIdAndUpdate(req.user.id, {
@@ -171,10 +176,7 @@ export const addAndRemoveFromFavorites = asyncHandler(
       },
     });
 
-    const message = isExistInFavorites
-      ? `Listing ${isListingExist.name} Remove From Favorites`
-      : `Listing ${isListingExist.name} Added To Favorites`;
-    return res.status(200).json({ success: "Done", message });
+    return res.status(200).json({ success: true, message });
   }
 );
 export const clearFavorites = asyncHandler(async (req, res, next) => {

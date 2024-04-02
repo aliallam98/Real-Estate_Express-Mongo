@@ -23,7 +23,11 @@ router.put(
 );
 router.delete("/:id", listingController.deleteListingById);
 
-router.patch("/favorites/clear", listingController.clearFavorites);
-router.patch("/favorites/:id", listingController.addAndRemoveFromFavorites);
+router.patch("/favorites/clear", auth(),listingController.clearFavorites);
+router.patch(
+  "/favorites/:id",
+  auth(),
+  listingController.addAndRemoveFromFavorites
+);
 
 export default router;
